@@ -8,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Apps
@@ -42,8 +43,24 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            GoodlesLockTheme {
-                GoodlesLockApp()
+            val context = LocalContext.current
+            var themeMode by remember {
+                mutableStateOf(PreferencesHelper.getSavedThemeMode(context))
+            }
+            val darkTheme = when (themeMode) {
+                "dark" -> true
+                "light" -> false
+                else -> isSystemInDarkTheme()
+            }
+
+            GoodlesLockTheme(darkTheme = darkTheme) {
+                GoodlesLockApp(
+                    themeMode = themeMode,
+                    onThemeModeChanged = { newMode ->
+                        themeMode = newMode
+                        PreferencesHelper.saveThemeMode(context, newMode)
+                    }
+                )
             }
         }
     }
@@ -58,14 +75,16 @@ enum class AppTab(
 }
 
 @Composable
-fun GoodlesLockApp() {
+fun GoodlesLockApp(
+    themeMode: String,
+    onThemeModeChanged: (String) -> Unit
+) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
     val repository = remember { GitHubCatalogRepository(context) }
 
     var currentTab by rememberSaveable { mutableStateOf(AppTab.UNINSTALLED) }
 
-    // Load persisted or auto-detected language and One UI version
     var currentLanguage by remember {
         mutableStateOf(PreferencesHelper.getSavedLanguage(context))
     }
@@ -78,7 +97,6 @@ fun GoodlesLockApp() {
     var allModules by remember { mutableStateOf<List<ModuleModel>>(emptyList()) }
     var installedPackageNames by remember { mutableStateOf<Set<String>>(emptySet()) }
 
-    // Fetch catalog from GitHub
     fun refreshData() {
         coroutineScope.launch {
             val catalog = repository.fetchCatalog(oneUiVersion)
@@ -175,6 +193,10 @@ fun GoodlesLockApp() {
                 onLanguageChanged = { newLang ->
                     currentLanguage = newLang
                     PreferencesHelper.saveLanguage(context, newLang)
+                },
+                currentThemeMode = themeMode,
+                onThemeModeChanged = { newMode ->
+                    onThemeModeChanged(newMode)
                 },
                 manualOneUiVersion = oneUiVersion,
                 onOneUiVersionChanged = { newVersion ->

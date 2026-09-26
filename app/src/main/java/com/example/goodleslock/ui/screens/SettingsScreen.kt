@@ -19,6 +19,8 @@ import com.example.goodleslock.utils.OneUiUtils
 fun SettingsScreen(
     currentLanguage: String,
     onLanguageChanged: (String) -> Unit,
+    currentThemeMode: String,
+    onThemeModeChanged: (String) -> Unit,
     manualOneUiVersion: String,
     onOneUiVersionChanged: (String) -> Unit,
     modifier: Modifier = Modifier
@@ -37,8 +39,15 @@ fun SettingsScreen(
         "fr" to "Français"
     )
 
+    val themes = mapOf(
+        "system" to strings.themeSystem,
+        "dark" to strings.themeDark,
+        "light" to strings.themeLight
+    )
+
     var oneUiExpanded by remember { mutableStateOf(false) }
     var langExpanded by remember { mutableStateOf(false) }
+    var themeExpanded by remember { mutableStateOf(false) }
 
     var selectedVersion by remember { mutableStateOf(manualOneUiVersion) }
     var pendingVersion by remember { mutableStateOf<String?>(null) }
@@ -178,6 +187,57 @@ fun SettingsScreen(
                 }
             }
 
+            // Theme Selection Card (System, Dark, Light)
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
+                )
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text(
+                        text = strings.themeTitle,
+                        fontFamily = FontFamily.SansSerif,
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 16.sp,
+                        color = MaterialTheme.colorScheme.onSurface
+                    )
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    ExposedDropdownMenuBox(
+                        expanded = themeExpanded,
+                        onExpandedChange = { themeExpanded = !themeExpanded }
+                    ) {
+                        OutlinedTextField(
+                            value = themes[currentThemeMode] ?: strings.themeSystem,
+                            onValueChange = {},
+                            readOnly = true,
+                            label = { Text(strings.themeTitle) },
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = themeExpanded) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .menuAnchor(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        ExposedDropdownMenu(
+                            expanded = themeExpanded,
+                            onDismissRequest = { themeExpanded = false }
+                        ) {
+                            themes.forEach { (code, name) ->
+                                DropdownMenuItem(
+                                    text = { Text(name, fontFamily = FontFamily.SansSerif) },
+                                    onClick = {
+                                        themeExpanded = false
+                                        onThemeModeChanged(code)
+                                    }
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // One UI selection card
             Card(
                 modifier = Modifier.fillMaxWidth(),
@@ -236,32 +296,6 @@ fun SettingsScreen(
                             }
                         }
                     }
-                }
-            }
-
-            // Theme Info Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.6f)
-                )
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = strings.themeTitle,
-                        fontFamily = FontFamily.SansSerif,
-                        fontWeight = FontWeight.Bold,
-                        fontSize = 16.sp,
-                        color = MaterialTheme.colorScheme.onSurface
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = strings.themeDesc,
-                        fontFamily = FontFamily.SansSerif,
-                        fontSize = 14.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
-                    )
                 }
             }
         }
