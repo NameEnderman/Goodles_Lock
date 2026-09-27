@@ -27,7 +27,7 @@ fun SettingsScreen(
 ) {
     val strings = remember(currentLanguage) { Localization.getStrings(currentLanguage) }
     val detectedVersion = remember { OneUiUtils.getOneUiVersionString() }
-    val oneUiOptions = listOf("4.0", "4.1", "5.0", "5.1", "6.0", "6.1", "7.0")
+    val oneUiOptions = listOf("1.0", "1.1", "1.5", "2.0", "2.1", "2.5", "3.0", "3.1", "3.1.1", "4.0", "4.1", "4.1.1", "5.0", "5.1", "5.1.1", "6.0", "6.1", "6.1.1", "7.0", "8.0", "8.5", "9.0" )
 
     val languages = mapOf(
         "en" to "English",
@@ -280,7 +280,8 @@ fun SettingsScreen(
                         )
                         ExposedDropdownMenu(
                             expanded = oneUiExpanded,
-                            onDismissRequest = { oneUiExpanded = false }
+                            onDismissRequest = { oneUiExpanded = false },
+                            modifier = Modifier.heightIn(max = 220.dp)
                         ) {
                             oneUiOptions.forEach { version ->
                                 DropdownMenuItem(
