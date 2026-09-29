@@ -2,10 +2,10 @@
   {
     "id": "lock_star",
     "name": "LockStar",
-    "description": "Кастомизация экрана блокировки для One UI 4",
-    "version": "4.0",
-    "oneUiVersion": "4.0",
-    "downloadUrl": "https://raw.githubusercontent.com/NameEnderman/goodles_lock.apk/main/catalog/one_ui_4/apks/lockstar.apk",
+    "description": "Кастомизация экрана блокировки для One UI 8.5",
+    "version": "8.5.0",
+    "oneUiVersion": "8.5",
+    "downloadUrl": "https://raw.githubusercontent.com/NameEnderman/goodles_lock.apk/main/catalog/one_ui_8_5/apks/lockstar.apk",
     "packageName": "com.samsung.android.lockstar"
   }
 ]
