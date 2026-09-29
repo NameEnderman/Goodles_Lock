@@ -18,8 +18,9 @@ class GitHubCatalogRepository(private val context: Context) {
     private val baseRepoUrl: String = "https://raw.githubusercontent.com/NameEnderman/goodles_lock.apk/main/"
 
     suspend fun fetchCatalog(oneUiVersion: String): List<ModuleModel> = withContext(Dispatchers.IO) {
-        val cleanVersion = oneUiVersion.replace(".", "")
-        val targetUrlStr = "${baseRepoUrl}catalog/oneui$cleanVersion/catalog.json"
+        val folderVersion = oneUiVersion.replace(".", "_")
+        val folderName = "one_ui_$folderVersion"
+        val targetUrlStr = "${baseRepoUrl}catalog/$folderName/catalog.json"
         
         try {
             Log.d(TAG, "Fetching catalog from GitHub: $targetUrlStr")
@@ -57,7 +58,6 @@ class GitHubCatalogRepository(private val context: Context) {
             for (i in 0 until jsonArray.length()) {
                 val obj = jsonArray.getJSONObject(i)
                 val downloadUrl = obj.optString("downloadUrl", "")
-                // Only include module if downloadUrl / APK link is present
                 if (downloadUrl.isNotBlank()) {
                     list.add(
                         ModuleModel(

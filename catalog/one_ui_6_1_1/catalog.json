@@ -1,0 +1,11 @@
+[
+  {
+    "id": "lock_star",
+    "name": "LockStar",
+    "description": "Кастомизация экрана блокировки для One UI 6.1.1",
+    "version": "3.3.0",
+    "oneUiVersion": "6.1.1",
+    "downloadUrl": "https://raw.githubusercontent.com/NameEnderman/goodles_lock.apk/main/catalog/one_ui_6_1_1/apks/lockstar.apk",
+    "packageName": "com.samsung.android.lockstar"
+  }
+]
