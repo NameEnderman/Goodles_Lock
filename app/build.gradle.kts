@@ -35,6 +35,15 @@ android {
     }
 }
 
+tasks.register<Copy>("copyCatalogAssets") {
+    from("$rootDir/catalog")
+    into("$projectDir/src/main/assets/catalog")
+}
+
+tasks.named("preBuild") {
+    dependsOn("copyCatalogAssets")
+}
+
 dependencies {
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)

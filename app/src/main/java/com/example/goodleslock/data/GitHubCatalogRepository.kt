@@ -22,12 +22,13 @@ class GitHubCatalogRepository(private val context: Context) {
         val folderName = "one_ui_$folderVersion"
         val targetUrlStr = "${baseRepoUrl}catalog/$folderName/catalog.json"
         
+        // 1. Try fetching from GitHub remote repository
         try {
             Log.d(TAG, "Fetching catalog from GitHub: $targetUrlStr")
             val url = URL(targetUrlStr)
             val connection = (url.openConnection() as HttpURLConnection).apply {
-                connectTimeout = 5000
-                readTimeout = 5000
+                connectTimeout = 4000
+                readTimeout = 4000
                 requestMethod = "GET"
             }
 
@@ -40,15 +41,39 @@ class GitHubCatalogRepository(private val context: Context) {
                 }
                 reader.close()
 
-                parseCatalogJson(sb.toString())
+                val parsed = parseCatalogJson(sb.toString())
+                if (parsed.isNotEmpty()) {
+                    return@withContext parsed
+                }
             } else {
-                Log.w(TAG, "Failed to fetch remote catalog, response code: ${connection.responseCode}")
-                emptyList()
+                Log.w(TAG, "Failed to fetch remote catalog, response code: ${connection.responseCode}. Trying local assets fallback.")
             }
         } catch (e: Exception) {
-            Log.e(TAG, "Error fetching catalog from GitHub", e)
-            emptyList()
+            Log.e(TAG, "Error fetching catalog from GitHub, trying local assets fallback", e)
         }
+
+        // 2. Fallback to local bundled assets catalog matching user's exact catalog.json files
+        try {
+            val assetPath = "catalog/$folderName/catalog.json"
+            Log.d(TAG, "Loading local asset catalog from: $assetPath")
+            val inputStream = context.assets.open(assetPath)
+            val reader = BufferedReader(InputStreamReader(inputStream))
+            val sb = StringBuilder()
+            var line: String?
+            while (reader.readLine().also { line = it } != null) {
+                sb.append(line)
+            }
+            reader.close()
+
+            val parsed = parseCatalogJson(sb.toString())
+            if (parsed.isNotEmpty()) {
+                return@withContext parsed
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "Error reading local asset catalog", e)
+        }
+
+        emptyList()
     }
 
     private fun parseCatalogJson(jsonStr: String): List<ModuleModel> {
